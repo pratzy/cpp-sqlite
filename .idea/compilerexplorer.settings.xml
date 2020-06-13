@@ -2,6 +2,64 @@
 <project version="4">
   <component name="CompilerExplorerSettingsProvider">
     <option name="enabled" value="false" />
+    <option name="connected" value="true" />
+    <option name="remoteCompilers">
+      <list>
+        <RemoteCompilerInfo>
+          <option name="id" value="/usr/bin/gcc" />
+          <option name="name" value="/usr/bin/gcc" />
+          <option name="language" value="c" />
+          <option name="version" value="Apple clang version 11.0.3 (clang-1103.0.32.62)" />
+          <option name="executable" value="/usr/bin/gcc" />
+        </RemoteCompilerInfo>
+        <RemoteCompilerInfo>
+          <option name="id" value="defaultgnuas" />
+          <option name="name" value="GNU AS (default)" />
+          <option name="language" value="assembly" />
+          <option name="version" value="Apple clang version 11.0.3 (clang-1103.0.32.62)" />
+          <option name="executable" value="/usr/bin/as" />
+        </RemoteCompilerInfo>
+        <RemoteCompilerInfo>
+          <option name="id" value="python36" />
+          <option name="name" value="Python 3.6" />
+          <option name="language" value="python" />
+          <option name="executable" value="python3.6" />
+        </RemoteCompilerInfo>
+        <RemoteCompilerInfo>
+          <option name="id" value="python37" />
+          <option name="name" value="Python 3.7" />
+          <option name="language" value="python" />
+          <option name="executable" value="python3.7" />
+        </RemoteCompilerInfo>
+        <RemoteCompilerInfo>
+          <option name="id" value="python38" />
+          <option name="name" value="Python 3.8" />
+          <option name="language" value="python" />
+          <option name="executable" value="python3.8" />
+        </RemoteCompilerInfo>
+        <RemoteCompilerInfo>
+          <option name="id" value="irclang" />
+          <option name="name" value="clang 3.9.1" />
+          <option name="language" value="llvm" />
+          <option name="version" value="Apple clang version 11.0.3 (clang-1103.0.32.62)" />
+          <option name="executable" value="/usr/bin/clang++" />
+        </RemoteCompilerInfo>
+        <RemoteCompilerInfo>
+          <option name="id" value="clangdefault" />
+          <option name="name" value="clang default" />
+          <option name="language" value="c++" />
+          <option name="version" value="Apple clang version 11.0.3 (clang-1103.0.32.62)" />
+          <option name="executable" value="/usr/bin/clang++" />
+        </RemoteCompilerInfo>
+        <RemoteCompilerInfo>
+          <option name="id" value="gdefault" />
+          <option name="name" value="g++ default" />
+          <option name="language" value="c++" />
+          <option name="version" value="Apple clang version 11.0.3 (clang-1103.0.32.62)" />
+          <option name="executable" value="/usr/bin/g++" />
+        </RemoteCompilerInfo>
+      </list>
+    </option>
     <option name="localCompilerSettings">
       <map>
         <entry>
@@ -16,6 +74,60 @@
               <option name="version" value="9.3.0" />
               <option name="target" value="x86_64" />
             </LocalCompilerSettings>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="compilerMatches">
+      <map>
+        <entry>
+          <key>
+            <LocalCompilerPath>
+              <option name="path" value="/usr/local/bin/g++-9" />
+            </LocalCompilerPath>
+          </key>
+          <value>
+            <CompilerMatches>
+              <option name="chosenMatch">
+                <CompilerMatch>
+                  <option name="remoteCompilerInfo">
+                    <RemoteCompilerInfo>
+                      <option name="id" value="clangdefault" />
+                      <option name="name" value="clang default" />
+                      <option name="language" value="c++" />
+                      <option name="version" value="Apple clang version 11.0.3 (clang-1103.0.32.62)" />
+                      <option name="executable" value="/usr/bin/clang++" />
+                    </RemoteCompilerInfo>
+                  </option>
+                </CompilerMatch>
+              </option>
+              <option name="otherMatches">
+                <list>
+                  <CompilerMatch>
+                    <option name="remoteCompilerInfo">
+                      <RemoteCompilerInfo>
+                        <option name="id" value="clangdefault" />
+                        <option name="name" value="clang default" />
+                        <option name="language" value="c++" />
+                        <option name="version" value="Apple clang version 11.0.3 (clang-1103.0.32.62)" />
+                        <option name="executable" value="/usr/bin/clang++" />
+                      </RemoteCompilerInfo>
+                    </option>
+                  </CompilerMatch>
+                  <CompilerMatch>
+                    <option name="remoteCompilerInfo">
+                      <RemoteCompilerInfo>
+                        <option name="id" value="gdefault" />
+                        <option name="name" value="g++ default" />
+                        <option name="language" value="c++" />
+                        <option name="version" value="Apple clang version 11.0.3 (clang-1103.0.32.62)" />
+                        <option name="executable" value="/usr/bin/g++" />
+                      </RemoteCompilerInfo>
+                    </option>
+                  </CompilerMatch>
+                </list>
+              </option>
+            </CompilerMatches>
           </value>
         </entry>
       </map>
