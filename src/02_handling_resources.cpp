@@ -10,7 +10,7 @@ int main() {
   try {
     // Create a connection pointer
     Connection connection = Connection::Memory();
-    Connection w_connection = Connection::WideMemory();
+    Connection w_connection = Connection::WideMemory(); // utf-16 encoding
     Connection f_connection{"../db/temp.db"};
   }
 
