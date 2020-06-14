@@ -9,12 +9,12 @@ int main() {
 
   try {
     // Create a connection pointer
-    Connection connection = Connection::Memory();
-    Connection w_connection = Connection::WideMemory(); // utf-16 encoding
-    Connection f_connection{"../db/temp.db"};
+    auto connection = sqlite::Connection::Memory();
+    auto w_connection = sqlite::Connection::WideMemory(); // utf-16 encoding
+    sqlite::Connection f_connection{"../db/temp.db"};
   }
 
-  catch (SqliteException const &e) {
+  catch (sqlite::Exception const &e) {
     fprintf(stderr, "%s (%d)\n", e.Message.c_str(), e.Result);
   }
 }

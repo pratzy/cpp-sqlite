@@ -2,8 +2,6 @@
 // Created by Prateek Agarwal on 13/6/20.
 //
 #pragma once
-#ifndef _HANDLE_H_
-#define _HANDLE_H_
 #include <cassert>
 
 /**
@@ -32,7 +30,6 @@ class Handle {
   }
 
 public:
-
   // Delete copy and assignment constructors
   Handle(Handle const &) = delete;
   Handle &operator=(Handle const &) = delete;
@@ -54,9 +51,7 @@ public:
   // Destructor
   ~Handle() noexcept { Close(); }
 
-  explicit operator bool() const noexcept {
-    return m_value != Traits::Invalid();
-  }
+  explicit operator bool() const noexcept { return m_value != Traits::Invalid(); }
 
   Type Get() const noexcept { return m_value; }
 
@@ -92,14 +87,11 @@ void swap(Handle<Traits> &left, Handle<Traits> &right) noexcept {
 }
 
 template <typename Traits>
-bool operator==(Handle<Traits> const &left,
-                Handle<Traits> const &right) noexcept {
+bool operator==(Handle<Traits> const &left, Handle<Traits> const &right) noexcept {
   return left.Get() == right.Get();
 }
 
 template <typename Traits>
-bool operator!=(Handle<Traits> const &left,
-                Handle<Traits> const &right) noexcept {
+bool operator!=(Handle<Traits> const &left, Handle<Traits> const &right) noexcept {
   return !(left == right);
 }
-#endif //_HANDLE_H_
