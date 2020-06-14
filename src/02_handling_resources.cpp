@@ -3,18 +3,17 @@
 //
 
 #include "sqlite.h"
-#include <cstdio>
 
 int main() {
 
   try {
     // Create a connection pointer
-    auto connection = sqlite::Connection::Memory();
-    auto w_connection = sqlite::Connection::WideMemory(); // utf-16 encoding
+    auto connection = sqlite::Connection::memory();
+    auto w_connection = sqlite::Connection::wide_memory(); // utf-16 encoding
     sqlite::Connection f_connection{"../db/temp.db"};
   }
 
   catch (sqlite::Exception const &e) {
-    fprintf(stderr, "%s (%d)\n", e.Message.c_str(), e.Result);
+    std::cerr << e.message.c_str() << "(" << e.result << ")" << std::endl;
   }
 }

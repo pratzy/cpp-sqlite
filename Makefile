@@ -3,6 +3,6 @@ clean:
 
 build:
 	pushd build
-	cmake ..
+	cmake .. -GNinja # or cmake ..
 	make
 	popd

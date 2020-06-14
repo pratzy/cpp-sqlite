@@ -4,6 +4,7 @@
 #pragma once
 
 #include "handle.h"
+#include <iostream>
 #include <sqlite3.h>
 #include <string>
 
@@ -18,18 +19,18 @@
 namespace sqlite {
 
 struct Exception {
-  int Result = 0;
-  std::string Message;
+  int result = 0;
+  std::string message;
 
   explicit Exception(sqlite3 *const connection)
-    : Result(std::move(sqlite3_extended_errcode(connection))), Message(std::move(sqlite3_errmsg(connection))) {}
+    : result(std::move(sqlite3_extended_errcode(connection))), message(std::move(sqlite3_errmsg(connection))) {}
 };
 
 class Connection {
   struct ConnectionHandleTraits : HandleTraits<sqlite3 *> {
-    static void Close(Type value) noexcept {
+    static void close(Type value) noexcept {
       VERIFY_(SQLITE_OK, sqlite3_close(value));
-      fprintf(stdout, "Connection closed\n");
+      std::cout << "Connection closed" << std::endl;
     }
   };
 
@@ -37,10 +38,10 @@ class Connection {
   ConnectionHandle m_handle;
 
   template <typename F, typename C>
-  void InternalOpen(F open, const C *const filename) {
+  void internal_open(F open, const C *const filename) {
     Connection temp;
-    if (SQLITE_OK != open(filename, temp.m_handle.Set())) {
-      temp.ThrowLastError();
+    if (SQLITE_OK != open(filename, temp.m_handle.set())) {
+      temp.throw_last_error();
     }
     swap(m_handle, temp.m_handle);
   }
@@ -50,50 +51,50 @@ public:
 
   template <typename C>
   explicit Connection(const C *const filename) {
-    Open(filename);
+    open(filename);
   }
 
-  static Connection Memory() { return Connection(":memory:"); }
+  static Connection memory() { return Connection(":memory:"); }
 
-  static Connection WideMemory() { return Connection(L":memory:"); }
+  static Connection wide_memory() { return Connection(L":memory:"); }
 
   explicit operator bool() const noexcept { return static_cast<bool>(m_handle); }
 
-  sqlite3 *GetAbi() const noexcept { return m_handle.Get(); }
+  sqlite3 *get_abi() const noexcept { return m_handle.get(); }
 
-  void ThrowLastError() const { throw Exception(GetAbi()); }
+  void throw_last_error() const { throw Exception(get_abi()); }
 
-  void Open(const char *const filename) {
-    InternalOpen(sqlite3_open, filename);
-    fprintf(stdout, "Connection open: %s\n", filename);
+  void open(const char *const filename) {
+    internal_open(sqlite3_open, filename);
+    std::cout << "Connection open: " << filename << std::endl;
   }
 
-  void Open(const wchar_t *const filename) {
-    InternalOpen(sqlite3_open16, filename);
-    fprintf(stdout, "Connection open: %ls\n", filename);
+  void open(const wchar_t *const filename) {
+    internal_open(sqlite3_open16, filename);
+    std::cout << "Connection open: " << filename << std::endl;
   }
 };
 
 template <typename T>
 struct Reader {
-  int GetInt(const int column = 0) const noexcept {
-    return sqlite3_column_int(static_cast<const T *>(this)->GetAbi(), column);
+  int get_int(const int column = 0) const noexcept {
+    return sqlite3_column_int(static_cast<const T *>(this)->get_abi(), column);
   }
 
-  char const *GetString(const int column = 0) const noexcept {
-    return reinterpret_cast<const char *>(sqlite3_column_text(static_cast<const T *>(this)->GetAbi(), column));
+  char const *get_string(const int column = 0) const noexcept {
+    return reinterpret_cast<const char *>(sqlite3_column_text(static_cast<const T *>(this)->get_abi(), column));
   }
 
-  wchar_t const *GetWideString(const int column = 0) const noexcept {
-    return reinterpret_cast<const wchar_t *>(sqlite3_column_text16(static_cast<const T *>(this)->GetAbi(), column));
+  wchar_t const *get_wide_string(const int column = 0) const noexcept {
+    return reinterpret_cast<const wchar_t *>(sqlite3_column_text16(static_cast<const T *>(this)->get_abi(), column));
   }
 
-  int GetStringLength(const int column = 0) const noexcept {
-    return sqlite3_column_bytes(static_cast<T const *>(this)->GetAbi(), column);
+  int get_string_length(const int column = 0) const noexcept {
+    return sqlite3_column_bytes(static_cast<T const *>(this)->get_abi(), column);
   }
 
-  int GetWideStringLength(const int column = 0) const noexcept {
-    return sqlite3_column_bytes16(static_cast<T const *>(this)->GetAbi(), column) / sizeof(wchar_t);
+  int get_wide_string_length(const int column = 0) const noexcept {
+    return sqlite3_column_bytes16(static_cast<T const *>(this)->get_abi(), column) / sizeof(wchar_t);
   }
 };
 
@@ -101,35 +102,35 @@ class Row : public Reader<Row> {
   sqlite3_stmt *m_statement = nullptr;
 
 public:
-  sqlite3_stmt *GetAbi() const noexcept { return m_statement; }
+  sqlite3_stmt *get_abi() const noexcept { return m_statement; }
 
   Row(sqlite3_stmt *const statement) noexcept : m_statement(statement) {}
 };
 
 class Statement : public Reader<Statement> {
   struct StatementHandleTraits : HandleTraits<sqlite3_stmt *> {
-    static void Close(Type value) noexcept { VERIFY_(SQLITE_OK, sqlite3_finalize(value)); }
+    static void close(Type value) noexcept { VERIFY_(SQLITE_OK, sqlite3_finalize(value)); }
   };
 
   using StatementHandle = Handle<StatementHandleTraits>;
   StatementHandle m_handle;
 
   template <typename F, typename C, typename... Values>
-  void InternalPrepare(const Connection &connection, F prepare, const C *const text, Values &&... values) {
+  void _prepare(const Connection &connection, F prepare, const C *const text, Values &&... values) {
     assert(connection);
-    auto result = prepare(connection.GetAbi(), text, -1, m_handle.Set(), nullptr);
+    auto result = prepare(connection.get_abi(), text, -1, m_handle.set(), nullptr);
     if (SQLITE_OK != result) {
-      connection.ThrowLastError();
+      connection.throw_last_error();
     }
-    BindAll(std::forward<Values>(values)...);
+    bind_all(std::forward<Values>(values)...);
   }
 
-  void InternalBind(const int index) const noexcept {}
+  void _bind(const int index) const noexcept {}
 
   template <typename First, typename... Rest>
-  void InternalBind(const int index, First &&first, Rest &&... rest) const {
-    Bind(index, std::forward<First>(first));
-    InternalBind(index + 1, std::forward<Rest>(rest)...);
+  void _bind(const int index, First &&first, Rest &&... rest) const {
+    bind(index, std::forward<First>(first));
+    _bind(index + 1, std::forward<Rest>(rest)...);
   }
 
 public:
@@ -137,82 +138,82 @@ public:
 
   template <typename C, typename... Values>
   Statement(const Connection &conn, const C *const text, Values &&... values) {
-    Prepare(conn, text, std::forward<Values>(values)...);
+    prepare(conn, text, std::forward<Values>(values)...);
   }
 
   explicit operator bool() const noexcept { return static_cast<bool>(m_handle); }
 
-  sqlite3_stmt *GetAbi() const noexcept { return m_handle.Get(); }
+  sqlite3_stmt *get_abi() const noexcept { return m_handle.get(); }
 
-  void ThrowLastError() const { throw Exception(sqlite3_db_handle(GetAbi())); }
+  void throw_last_error() const { throw Exception(sqlite3_db_handle(get_abi())); }
 
   template <typename... Values>
-  void Prepare(const Connection &connection, const char *const text, Values &&... values) {
-    InternalPrepare(connection, sqlite3_prepare_v2, text, std::forward<Values>(values)...);
+  void prepare(const Connection &connection, const char *const text, Values &&... values) {
+    _prepare(connection, sqlite3_prepare_v2, text, std::forward<Values>(values)...);
   }
 
   template <typename... Values>
-  void Prepare(const Connection &connection, const wchar_t *const text, Values &&... values) {
-    InternalPrepare(connection, sqlite3_prepare16_v2, text, std::forward<Values>(values)...);
+  void prepare(const Connection &connection, const wchar_t *const text, Values &&... values) {
+    _prepare(connection, sqlite3_prepare16_v2, text, std::forward<Values>(values)...);
   }
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
 
-  bool Step() const {
-    const auto result = sqlite3_step(GetAbi());
+  bool step() const {
+    const auto result = sqlite3_step(get_abi());
 
     if (result == SQLITE_ROW)
       return true;
     if (result == SQLITE_DONE)
       return false;
-    ThrowLastError();
+    throw_last_error();
   }
 
 #pragma GCC diagnostic pop
 
-  void Execute() const { VERIFY(!Step()); }
+  void execute() const { VERIFY(!step()); }
 
-  void Bind(const int index, const int value) {
-    if (SQLITE_OK != sqlite3_bind_int(GetAbi(), index, value)) {
-      ThrowLastError();
+  void bind(const int index, const int value) {
+    if (SQLITE_OK != sqlite3_bind_int(get_abi(), index, value)) {
+      throw_last_error();
     }
   }
 
-  void Bind(const int index, const char *const value, const int size = -1) const {
-    if (SQLITE_OK != sqlite3_bind_text(GetAbi(), index, value, size, SQLITE_STATIC)) {
-      ThrowLastError();
+  void bind(const int index, const char *const value, const int size = -1) const {
+    if (SQLITE_OK != sqlite3_bind_text(get_abi(), index, value, size, SQLITE_STATIC)) {
+      throw_last_error();
     }
   }
 
-  void Bind(const int index, const wchar_t *const value, const int size = -1) const {
-    if (SQLITE_OK != sqlite3_bind_text16(GetAbi(), index, value, size, SQLITE_STATIC)) {
-      ThrowLastError();
+  void bind(const int index, const wchar_t *const value, const int size = -1) const {
+    if (SQLITE_OK != sqlite3_bind_text16(get_abi(), index, value, size, SQLITE_STATIC)) {
+      throw_last_error();
     }
   }
 
-  void Bind(const int index, const std::string &value) const { Bind(index, value.c_str(), value.size()); }
+  void bind(const int index, const std::string &value) const { bind(index, value.c_str(), value.size()); }
 
-  void Bind(const int index, const std::wstring &value) const {
-    Bind(index, value.c_str(), value.size() * sizeof(wchar_t));
+  void bind(const int index, const std::wstring &value) const {
+    bind(index, value.c_str(), value.size() * sizeof(wchar_t));
   }
 
-  void Bind(const int index, const std::string &&value) const {
-    if (SQLITE_OK != sqlite3_bind_text(GetAbi(), index, value.c_str(), value.size(), SQLITE_TRANSIENT)) {
-      ThrowLastError();
+  void bind(const int index, const std::string &&value) const {
+    if (SQLITE_OK != sqlite3_bind_text(get_abi(), index, value.c_str(), value.size(), SQLITE_TRANSIENT)) {
+      throw_last_error();
     }
   }
 
-  void Bind(const int index, const std::wstring &&value) const {
+  void bind(const int index, const std::wstring &&value) const {
     if (SQLITE_OK !=
-        sqlite3_bind_text16(GetAbi(), index, value.c_str(), value.size() * sizeof(wchar_t), SQLITE_TRANSIENT)) {
-      ThrowLastError();
+        sqlite3_bind_text16(get_abi(), index, value.c_str(), value.size() * sizeof(wchar_t), SQLITE_TRANSIENT)) {
+      throw_last_error();
     }
   }
 
   template <typename... Values>
-  void BindAll(Values &&... values) const {
-    InternalBind(1, std::forward<Values>(values)...);
+  void bind_all(Values &&... values) const {
+    _bind(1, std::forward<Values>(values)...);
   }
 };
 
@@ -223,13 +224,13 @@ public:
   RowIterator() noexcept = default;
 
   RowIterator(const Statement &statement) noexcept {
-    if (statement.Step()) {
+    if (statement.step()) {
       m_statement = &statement;
     }
   }
 
   RowIterator &operator++() noexcept {
-    if (!m_statement->Step())
+    if (!m_statement->step())
       m_statement = nullptr;
     return *this;
   }
@@ -238,7 +239,7 @@ public:
 
   bool operator==(const RowIterator &other) const noexcept { return m_statement == other.m_statement; }
 
-  Row operator*() const noexcept { return Row(m_statement->GetAbi()); }
+  Row operator*() const noexcept { return Row(m_statement->get_abi()); }
 };
 
 inline RowIterator begin(const Statement &statement) noexcept { return RowIterator(statement); }
@@ -246,7 +247,7 @@ inline RowIterator begin(const Statement &statement) noexcept { return RowIterat
 inline RowIterator end(const Statement &) noexcept { return RowIterator(); }
 
 template <typename C, typename... Values>
-void Execute(const Connection &connection, const C *const text, Values &&... values) {
+void execute(const Connection &connection, const C *const text, Values &&... values) {
   Statement(connection, text, std::forward<Values>(values)...);
 }
 

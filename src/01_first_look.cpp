@@ -2,6 +2,10 @@
 // Created by Prateek Agarwal on 13/6/20.
 //
 
+/**
+ * First look at the SQLite C API
+ */
+
 #include <cstdio>
 #include <sqlite3.h>
 
@@ -10,7 +14,7 @@ int main() {
   sqlite3 *connection = nullptr;
   int result;
 
-  // Open the connection to memory or desired DB file
+  // open the connection to memory or desired DB file
   // by passing pointer to connection pointer
   result = sqlite3_open(":memory:", &connection);
 
@@ -24,9 +28,8 @@ int main() {
   // Create a stmt pointer
   sqlite3_stmt *query = nullptr;
 
-  // Prepare the statement.
-  result = sqlite3_prepare_v2(connection, "select 'Hello World!'", -1, &query,
-                              nullptr);
+  // prepare the statement.
+  result = sqlite3_prepare_v2(connection, "select 'Hello World!'", -1, &query, nullptr);
 
   // If the statement cannot be prepared, close the connection
   // The error in preparing statement will always return a nullptr,
@@ -37,7 +40,7 @@ int main() {
     return result;
   }
 
-  // Step over the results and print the first column
+  // step over the results and print the first column
   while (SQLITE_ROW == sqlite3_step(query)) {
     fprintf(stdout, "%s\n", sqlite3_column_text(query, 0));
   }
@@ -45,6 +48,6 @@ int main() {
   // Destroy the statement
   sqlite3_finalize(query);
 
-  // Close the connection
+  // close the connection
   sqlite3_close(connection);
 }
